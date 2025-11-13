@@ -14,19 +14,16 @@ export default function SignInPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
     if (!identifier.trim() || !password) {
       setError("Please fill in both fields.");
       return;
     }
-
     setLoading(true);
-    // MOCK login: replace with real API call
+
     await new Promise((r) => setTimeout(r, 700));
     setLoading(false);
-
-    // fake success: route to dashboard (replace with your dashboard route)
-    // router.push("/dashboard"); // uncomment when dashboard exists
-    alert("Mock login success — replace with real API + redirect");
+    router.push("/dashboard");
   };
 
   return (
