@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { mockGuilds } from "./mockGuilds";
+import { mockGuilds } from "../../mocks/mockGuilds";
 import GuildIcon from "./GuildIcon";
 import ServerTooltip from "./ServerTooltip";
 

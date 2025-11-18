@@ -105,32 +105,35 @@ export default React.memo(function MessageItem({
         {/* attachments (images/files) */}
         {message.attachments?.length ? (
           <div className="mt-2 grid grid-cols-1 gap-2">
-            {message.attachments.map((a, idx) => (
-              <div
-                key={idx}
-                className="rounded-md overflow-hidden border border-[#242526]"
-              >
-                {/* If image -> show inline preview; otherwise show filename link */}
-                {/\.(jpe?g|png|webp|gif)$/i.test(a.url) ? (
-                  // image preview
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={a.url}
-                    alt={a.filename ?? "attachment"}
-                    className="w-full h-auto object-cover"
-                  />
-                ) : (
-                  <a
-                    href={a.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block px-3 py-2 bg-[#0e0f10] hover:bg-[#111214] text-xs text-indigo-200"
-                  >
-                    {a.filename ?? a.url}
-                  </a>
-                )}
-              </div>
-            ))}
+            {message.attachments.map((a, idx) => {
+              const isImage = /\.(jpe?g|png|webp|gif|svg)$/i.test(a.url);
+              return (
+                <div
+                  key={idx}
+                  className="rounded-md overflow-hidden border border-[#242526] bg-[#0e0f10] max-w-full"
+                >
+                  {isImage ? (
+                    <img
+                      src={a.url}
+                      alt={a.filename ?? "attachment"}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-auto object-contain transition-transform duration-200 ease-out hover:scale-105"
+                      style={{ maxHeight: 420 }}
+                    />
+                  ) : (
+                    <a
+                      href={a.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block px-3 py-2 bg-[#0e0f10] hover:bg-[#111214] text-xs text-indigo-200"
+                    >
+                      {a.filename ?? a.url}
+                    </a>
+                  )}
+                </div>
+              );
+            })}
           </div>
         ) : null}
 

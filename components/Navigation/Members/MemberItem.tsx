@@ -4,7 +4,7 @@
 import Image from "next/image";
 import { memo } from "react";
 import { cn } from "@/lib/cn";
-import type { Member } from "./mockMembers";
+import type { Member } from "../../mocks/mockMembers";
 
 export default memo(function MemberItem({
   member,

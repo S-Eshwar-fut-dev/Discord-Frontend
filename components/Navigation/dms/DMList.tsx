@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import FriendItem from "./FriendItem";
-import { mockFriends, type Friend } from "./mockFriends";
+import { mockFriends, type Friend } from "../../mocks/mockFriends";
 import { useFriendsStore } from "@/store/friends";
 import AddFriendModal from "../../overlays/AddFriendModal";
 import { Search } from "lucide-react";

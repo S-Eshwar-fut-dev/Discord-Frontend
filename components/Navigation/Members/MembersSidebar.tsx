@@ -4,7 +4,7 @@
 import { useState, useMemo } from "react";
 import MemberItem from "./MemberItem";
 import MemberPopover from "./MemberPopover";
-import { mockMembers, type Member } from "./mockMembers";
+import { mockMembers, type Member } from "../../mocks/mockMembers";
 import { cn } from "@/lib/cn";
 
 export default function MembersSidebar({

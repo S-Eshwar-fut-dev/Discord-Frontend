@@ -4,7 +4,7 @@ import React from "react";
 import { Friend } from "../../mocks/mockFriends";
 import { cn } from "@/lib/cn";
 
-export default function FriendItem({
+export default function DMItem({
   friend,
   onClick,
 }: {
@@ -22,8 +22,9 @@ export default function FriendItem({
     <button
       onClick={() => onClick?.(friend)}
       className={cn(
-        "flex items-center gap-3 px-2 py-2 rounded-md w-full text-left hover:bg-[#232427] transition"
+        "w-full text-left flex items-center gap-3 px-2 py-2 rounded-md hover:bg-[#232427] transition"
       )}
+      aria-label={`Open DM with ${friend.username}`}
     >
       <div className="relative w-10 h-10 flex-shrink-0">
         {friend.avatar ? (
@@ -49,7 +50,7 @@ export default function FriendItem({
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-white truncate">
             {friend.username}
           </span>

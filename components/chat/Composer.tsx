@@ -1,52 +1,73 @@
+// components/chat/Composer.tsx
 "use client";
 
-import { useState } from "react";
-import { ChatMessage } from "./MessageItem";
+import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import type { ChatMessage, ChatUser } from "./MessageItem";
 
 export default function Composer({
+  channelId,
+  me,
   onSend,
 }: {
-  onSend: (msg: ChatMessage) => void;
+  channelId?: string;
+  me?: ChatUser;
+  onSend?: (m: ChatMessage) => void;
 }) {
   const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
 
-  const sendMessage = () => {
+  async function handleSend() {
     if (!text.trim()) return;
+    setSending(true);
 
-    const newMessage: ChatMessage = {
-      id: uuidv4(),
-      author: {
-        id: "me",
-        username: "You",
-        avatar: null,
-      },
-      content: text.trim(),
-      channelId: "general",
+    const tempId = "temp_" + uuidv4().slice(0, 8);
+    const tempMessage: ChatMessage = {
+      id: tempId,
+      channelId: channelId ?? "general",
+      author: me ?? { id: "me", username: "You" },
+      content: text,
       createdAt: new Date().toISOString(),
-      temp: false,
+      temp: true,
     };
 
-    onSend(newMessage);
+    // optimistic local send via callback
+    onSend?.(tempMessage);
+
+    // reset input & sending state
     setText("");
-  };
+    setTimeout(() => setSending(false), 400);
+  }
+
+  function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  }
 
   return (
-    <div className="flex items-center gap-2 bg-[#1a1b1e] p-3 rounded-md">
-      <input
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        placeholder="Message #general"
-        className="flex-1 bg-[#111214] text-white px-3 py-2 rounded-md outline-none"
-      />
-
-      <button
-        onClick={sendMessage}
-        className="bg-indigo-500 hover:bg-indigo-600 px-4 py-2 rounded-md"
-      >
-        Send
-      </button>
+    <div className="p-4 border-t border-[#202225] bg-[#0f1113]">
+      <div className="flex items-start gap-3">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKey}
+          placeholder={`Message #${channelId ?? "general"}`}
+          className="flex-1 resize-none rounded-md bg-[#111214] text-white placeholder-gray-400 px-3 py-3 outline-none ring-1 ring-[#1f2022] focus:ring-indigo-500"
+          rows={2}
+        />
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={handleSend}
+            className={`px-4 py-2 rounded-md font-semibold ${
+              sending ? "bg-indigo-400/80" : "bg-indigo-500 hover:bg-indigo-600"
+            }`}
+          >
+            Send
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Friend } from "@/components/Navigation/dms/mockFriends";
+import type { Friend } from "@/components/mocks/mockFriends";
 
 type FriendsState = {
   friends: Friend[];

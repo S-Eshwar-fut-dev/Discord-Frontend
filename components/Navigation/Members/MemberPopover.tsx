@@ -2,7 +2,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { Member } from "./mockMembers";
+import type { Member } from "../../mocks/mockMembers";
 
 export default function MemberPopover({
   member,

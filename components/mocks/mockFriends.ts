@@ -1,4 +1,3 @@
-// components/navigation/dms/mockFriends.ts
 export type Friend = {
   id: string;
   username: string;
@@ -36,5 +35,23 @@ export const mockFriends: Friend[] = [
     status: "online",
     lastMessage: "welcome",
     unread: 1,
+  },
+  {
+    id: "f4",
+    username: "MonoDev",
+    tag: "#1234",
+    avatar: null,
+    status: "idle",
+    lastMessage: "pushed changes",
+    unread: 0,
+  },
+  {
+    id: "f5",
+    username: "HelperBot",
+    tag: "",
+    avatar: "/avatars/a4.png",
+    status: "dnd",
+    lastMessage: "system",
+    unread: 0,
   },
 ];
