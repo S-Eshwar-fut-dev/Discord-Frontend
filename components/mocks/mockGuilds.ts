@@ -1,20 +1,28 @@
-export const mockGuilds = [
+export interface Guild {
+  id: string;
+  name: string;
+  icon: string;
+  unread?: boolean;
+  mentions?: number;
+}
+
+export const mockGuilds: Guild[] = [
   {
     id: "1",
     name: "Eoncord HQ",
-    icon: "/icons/server1.png",
+    icon: "/servers/server1.png",
     unread: true,
+    mentions: 2,
   },
   {
     id: "2",
     name: "Developers Hub",
-    icon: "/icons/server2.png",
-    unread: false,
+    icon: "/servers/server2.png",
   },
   {
     id: "3",
     name: "Gamers Club",
-    icon: "/icons/server3.png",
+    icon: "/servers/server3.png",
     unread: true,
   },
 ];
