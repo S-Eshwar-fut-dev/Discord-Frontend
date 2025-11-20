@@ -1,4 +1,4 @@
-import type { ChatMessage } from "@/components/chat/MessageItem";
+import type { ChatMessage } from "@/types/chat";
 
 export function shouldGroupMessages(
   current: ChatMessage,

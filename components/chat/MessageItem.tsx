@@ -1,28 +1,18 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { MoreHorizontal, Reply, SmilePlus, Trash2, Edit3 } from "lucide-react";
+import {
+  MoreHorizontal,
+  Reply,
+  SmilePlus,
+  Trash2,
+  Edit3,
+  AlertCircle,
+} from "lucide-react";
 import Avatar from "../ui/Avatar";
 import { formatTimestamp } from "@/lib/time";
 import { cn } from "@/lib/cn";
-
-export type ChatUser = {
-  id: string;
-  username: string;
-  avatar?: string | null;
-  status?: "online" | "idle" | "dnd" | "offline" | null;
-};
-
-export type ChatMessage = {
-  id: string;
-  channelId: string;
-  author: ChatUser;
-  content: string;
-  attachments?: Array<{ url: string; filename?: string }>;
-  createdAt: string;
-  editedAt?: string | null;
-  temp?: boolean;
-};
+import type { ChatMessage } from "@/types/chat";
 
 interface MessageItemProps {
   message: ChatMessage;
@@ -41,11 +31,17 @@ export default React.memo(function MessageItem({
     [message.createdAt]
   );
 
+  const isOptimistic = message.temp || message.optimistic;
+  const isSending = message.sending;
+  const isFailed = message.failed;
+
   return (
     <div
       className={cn(
         "group relative px-4 py-0.5 hover:bg-[#2e3035] message-item",
-        isFirstInGroup ? "mt-4" : "mt-0.5"
+        isFirstInGroup ? "mt-4" : "mt-0.5",
+        isOptimistic && "opacity-60",
+        isFailed && "opacity-40"
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
@@ -58,7 +54,7 @@ export default React.memo(function MessageItem({
               src={message.author.avatar ?? undefined}
               alt={message.author.username}
               size={40}
-              status={message.author.status ?? null}
+              status={null} // Changed from explicit null if your type implies optional string, but kept as is if component handles null
               fallback={message.author.username}
             />
           ) : (
@@ -76,8 +72,14 @@ export default React.memo(function MessageItem({
                 {message.author.username}
               </span>
               <span className="text-xs text-[#949ba4]">{timeLabel}</span>
-              {message.temp && (
-                <span className="text-xs text-[#949ba4]">(sending...)</span>
+              {isSending && (
+                <span className="text-xs text-[#87888c]">(sending...)</span>
+              )}
+              {isFailed && (
+                <span className="flex items-center gap-1 text-xs text-red-400">
+                  <AlertCircle size={12} />
+                  Failed to send
+                </span>
               )}
             </div>
           )}
@@ -95,7 +97,6 @@ export default React.memo(function MessageItem({
                 return (
                   <div key={idx} className="max-w-[400px]">
                     {isImage ? (
-                      // FIX: Added missing <a> tag
                       <a
                         href={attachment.url}
                         target="_blank"
@@ -110,7 +111,6 @@ export default React.memo(function MessageItem({
                         />
                       </a>
                     ) : (
-                      // FIX: Added missing <a> tag
                       <a
                         href={attachment.url}
                         target="_blank"
@@ -136,8 +136,8 @@ export default React.memo(function MessageItem({
         </div>
       </div>
 
-      {/* Hover actions */}
-      {showActions && (
+      {/* Hover actions - hide for optimistic/failed messages */}
+      {showActions && !isOptimistic && !isFailed && (
         <div className="absolute -top-4 right-4 flex items-center gap-1 bg-[#2b2d31] border border-[#3f4147] rounded-md shadow-lg p-1 z-10">
           <button
             className="p-1.5 hover:bg-[#404249] rounded text-[#b5bac1] hover:text-white transition-colors"

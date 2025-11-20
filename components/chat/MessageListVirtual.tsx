@@ -2,37 +2,52 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
-import MessageItem, { type ChatMessage } from "./MessageItem";
+import MessageItem from "./MessageItem";
 import DaySeparator from "./DaySeparator";
 import UnreadMarker from "./UnreadMarker";
+import Spinner from "../ui/Spinner";
 import {
   shouldGroupMessages,
   shouldShowDaySeparator,
   getDaySeparator,
 } from "@/lib/utils/messageGrouping";
 import { cn } from "@/lib/cn";
+import type { ChatMessage } from "@/types/chat";
 
 interface MessageListVirtualProps {
   messages: ChatMessage[];
   unreadMessageId?: string | null;
+  loading?: boolean;
+  hasMore?: boolean;
+  onLoadMore?: () => Promise<void>;
 }
 
 type ListItem =
   | { type: "day"; id: string; label: string }
   | { type: "unread"; id: string }
-  | { type: "message"; message: ChatMessage; isFirstInGroup: boolean };
+  | { type: "message"; message: ChatMessage; isFirstInGroup: boolean }
+  | { type: "loader"; id: string };
 
 export default function MessageListVirtual({
   messages,
   unreadMessageId,
+  loading = false,
+  hasMore = false,
+  onLoadMore,
 }: MessageListVirtualProps) {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [atBottom, setAtBottom] = useState(true);
   const [hasTopShadow, setHasTopShadow] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Build list items with day separators and grouping
   const listItems: ListItem[] = React.useMemo(() => {
     const items: ListItem[] = [];
+
+    // Add loader at top if has more
+    if (hasMore && !loading) {
+      items.push({ type: "loader", id: "top-loader" });
+    }
 
     messages.forEach((message, idx) => {
       const prevMessage = idx > 0 ? messages[idx - 1] : undefined;
@@ -63,7 +78,7 @@ export default function MessageListVirtual({
     });
 
     return items;
-  }, [messages, unreadMessageId]);
+  }, [messages, unreadMessageId, hasMore, loading]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -78,6 +93,43 @@ export default function MessageListVirtual({
     }
   }, [messages.length, atBottom, listItems.length]);
 
+  // Handle load more
+  const handleLoadMore = async () => {
+    if (!hasMore || loadingMore || !onLoadMore) return;
+    setLoadingMore(true);
+    try {
+      await onLoadMore();
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Show initial loading state
+  if (loading && messages.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Spinner size="lg" />
+          <p className="text-sm text-[#87888c]">Loading messages...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state
+  if (!loading && messages.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-[#87888c] mb-2">No messages yet</p>
+          <p className="text-sm text-[#6d6f78]">
+            Be the first to send a message!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative h-full w-full">
       <Virtuoso
@@ -91,7 +143,25 @@ export default function MessageListVirtual({
         alignToBottom
         atBottomStateChange={setAtBottom}
         atTopStateChange={(isAtTop) => setHasTopShadow(!isAtTop)}
+        startReached={hasMore ? handleLoadMore : undefined}
         itemContent={(index, item) => {
+          if (item.type === "loader") {
+            return (
+              <div className="flex justify-center py-4">
+                {loadingMore ? (
+                  <Spinner size="sm" />
+                ) : (
+                  <button
+                    onClick={handleLoadMore}
+                    className="text-sm text-[#00a8fc] hover:underline"
+                  >
+                    Load older messages
+                  </button>
+                )}
+              </div>
+            );
+          }
+
           if (item.type === "day") {
             return <DaySeparator label={item.label} />;
           }

@@ -4,14 +4,17 @@ import React from "react";
 import MessageListVirtual from "./MessageListVirtual";
 import Composer from "./Composer";
 import ChannelHeader from "./ChannelHeader";
-import type { ChatMessage } from "./MessageItem";
+import type { ChatMessage } from "@/types/chat";
 
 interface ChatViewProps {
   channelId?: string;
   channelName?: string;
   channelTopic?: string;
   messages: ChatMessage[];
-  onSend: (message: ChatMessage) => void;
+  onSend: (content: string) => Promise<void>;
+  loading?: boolean;
+  hasMore?: boolean;
+  onLoadMore?: () => Promise<void>;
   unreadMessageId?: string | null;
 }
 
@@ -21,6 +24,9 @@ export default function ChatView({
   channelTopic,
   messages,
   onSend,
+  loading = false,
+  hasMore = false,
+  onLoadMore,
   unreadMessageId,
 }: ChatViewProps) {
   return (
@@ -37,6 +43,9 @@ export default function ChatView({
         <MessageListVirtual
           messages={messages}
           unreadMessageId={unreadMessageId}
+          loading={loading}
+          hasMore={hasMore}
+          onLoadMore={onLoadMore}
         />
       </div>
 

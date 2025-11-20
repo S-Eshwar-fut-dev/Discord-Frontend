@@ -2,20 +2,16 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Plus, Gift, Sticker, Smile } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
-import type { ChatMessage, ChatUser } from "./MessageItem";
 import IconButton from "../ui/IconButton";
 import { cn } from "@/lib/cn";
 
 interface ComposerProps {
   channelId?: string;
-  me?: ChatUser;
-  onSend?: (m: ChatMessage) => void;
+  onSend?: (content: string) => Promise<void>;
 }
 
 export default function Composer({
   channelId = "general",
-  me,
   onSend,
 }: ComposerProps) {
   const [text, setText] = useState("");
@@ -33,27 +29,18 @@ export default function Composer({
 
   async function handleSend() {
     const trimmed = text.trim();
-    if (!trimmed || sending) return;
+    if (!trimmed || sending || !onSend) return;
 
     setSending(true);
 
-    const tempId = "temp_" + uuidv4().slice(0, 8);
-    const tempMessage: ChatMessage = {
-      id: tempId,
-      channelId,
-      author: me ?? { id: "me", username: "You" },
-      content: trimmed,
-      createdAt: new Date().toISOString(),
-      temp: true,
-    };
-
-    onSend?.(tempMessage);
-    setText("");
-
-    // Simulate network delay
-    setTimeout(() => {
+    try {
+      await onSend(trimmed);
+      setText("");
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    } finally {
       setSending(false);
-    }, 300);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -122,6 +109,11 @@ export default function Composer({
             {text.length} / 2000
           </span>
         </div>
+      )}
+
+      {/* Sending indicator */}
+      {sending && (
+        <div className="mt-2 text-xs text-[#87888c]">Sending message...</div>
       )}
     </div>
   );

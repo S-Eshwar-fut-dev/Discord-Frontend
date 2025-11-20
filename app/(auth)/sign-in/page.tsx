@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function SignInPage() {
-  const router = useRouter();
-  const [identifier, setIdentifier] = useState(""); // email or phone
+  const { login, loading, error: authError } = useAuth();
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,11 +18,13 @@ export default function SignInPage() {
       setError("Please fill in both fields.");
       return;
     }
-    setLoading(true);
 
-    await new Promise((r) => setTimeout(r, 700));
-    setLoading(false);
-    router.push("/dashboard");
+    try {
+      // Mock server only needs username for login
+      await login(identifier);
+    } catch (err) {
+      setError(authError || "Login failed");
+    }
   };
 
   return (
@@ -37,7 +38,7 @@ export default function SignInPage() {
                 Welcome back!
               </h1>
               <p className="mt-2 text-sm text-gray-300">
-                We’re so excited to see you again!
+                We're so excited to see you again!
               </p>
             </div>
 
@@ -54,6 +55,7 @@ export default function SignInPage() {
                   className="w-full rounded-lg bg-[#2b2d31] text-white placeholder-gray-400 px-4 py-3 outline-none ring-1 ring-[#404244] focus:ring-indigo-500 transition"
                   autoComplete="username"
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -69,6 +71,7 @@ export default function SignInPage() {
                   className="w-full rounded-lg bg-[#2b2d31] text-white placeholder-gray-400 px-4 py-3 outline-none ring-1 ring-[#404244] focus:ring-indigo-500 transition"
                   autoComplete="current-password"
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -82,14 +85,14 @@ export default function SignInPage() {
                 </button>
               </div>
 
-              {error ? <p className="text-rose-400 text-sm">{error}</p> : null}
+              {error && <p className="text-rose-400 text-sm">{error}</p>}
 
               <button
                 type="submit"
                 disabled={loading}
                 className={`w-full mt-2 rounded-lg py-3 font-semibold text-white transition ${
                   loading
-                    ? "bg-indigo-400/60"
+                    ? "bg-indigo-400/60 cursor-not-allowed"
                     : "bg-indigo-500 hover:bg-indigo-600"
                 }`}
               >
