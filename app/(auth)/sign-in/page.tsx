@@ -1,147 +1,102 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import React, { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function SignInPage() {
-  const { login, loading, error: authError } = useAuth();
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+import GuildsRail from "@/components/Navigation/Guild/GuildsRail";
+import ChannelsColumn from "@/components/Navigation/Channel/ChannelsColumn";
+import MembersSidebar from "@/components/Navigation/Members/MembersSidebar";
+import ChatView from "@/components/chat/ChatView";
+import type { ChatMessage } from "@/types/chat";
+import { useWebSocket } from "@/services/ws/useMockWebSocket";
+import { fetchMessages } from "@/services/api/messages";
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+export default function DashboardPage() {
+  const router = useRouter();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [currentChannel] = useState("c-general");
+  const [loading, setLoading] = useState(true);
 
-    if (!identifier.trim() || !password) {
-      setError("Please fill in both fields.");
-      return;
+  // Load initial messages
+  useEffect(() => {
+    async function loadMessages() {
+      try {
+        setLoading(true);
+        const response = await fetchMessages(currentChannel, 50);
+        setMessages(response.items);
+      } catch (error) {
+        console.error("Failed to load messages:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    try {
-      // Mock server only needs username for login
-      await login(identifier);
-    } catch (err) {
-      setError(authError || "Login failed");
-    }
-  };
+    loadMessages();
+  }, [currentChannel]);
+
+  // WebSocket connection
+  const handleNewMessage = useCallback((msg: ChatMessage) => {
+    setMessages((prev) => {
+      // Replace temp message if it exists
+      const filtered = prev.filter((m) => !m.temp || m.id !== msg.id);
+      return [...filtered, msg];
+    });
+  }, []);
+
+  const { sendCreateMessage } = useWebSocket(currentChannel, handleNewMessage);
+
+  const handleSend = useCallback(
+    (m: ChatMessage) => {
+      // Add temp message immediately
+      setMessages((prev) => [...prev, m]);
+
+      // Send to server via WebSocket
+      sendCreateMessage({
+        channelId: m.channelId,
+        content: m.content,
+        authorId: m.author.id,
+        tempId: m.id,
+        attachments: m.attachments,
+      });
+    },
+    [sendCreateMessage]
+  );
+
+  if (loading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-[#313338] text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent" />
+          <p>Loading messages...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1b1930] via-[#222226] to-[#12225c] px-4">
-      <div className="w-full max-w-5xl px-4">
-        <div className="bg-[#3a3b3f] rounded-2xl shadow-2xl ring-1 ring-black/30 p-8 md:p-10 grid md:grid-cols-[1fr_0.9fr] gap-8">
-          {/* LEFT: Login form */}
-          <div className="flex flex-col">
-            <div className="mb-6 text-center">
-              <h1 className="text-3xl font-extrabold text-white">
-                Welcome back!
-              </h1>
-              <p className="mt-2 text-sm text-gray-300">
-                We're so excited to see you again!
-              </p>
-            </div>
+    <div className="h-screen w-screen flex bg-[#313338] text-white overflow-hidden">
+      {/* Guilds Rail */}
+      <div className="flex-none w-[72px] bg-[#1e1f22] border-r border-[#1e1f22]">
+        <GuildsRail />
+      </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-gray-200 mb-2">
-                  Email or Phone Number <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full rounded-lg bg-[#2b2d31] text-white placeholder-gray-400 px-4 py-3 outline-none ring-1 ring-[#404244] focus:ring-indigo-500 transition"
-                  autoComplete="username"
-                  required
-                  disabled={loading}
-                />
-              </div>
+      {/* Channels Sidebar */}
+      <div className="flex-none w-60 bg-[#2b2d31] border-r border-[#1e1f22] flex flex-col min-h-0">
+        <ChannelsColumn />
+      </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-200 mb-2">
-                  Password <span className="text-rose-400">*</span>
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-lg bg-[#2b2d31] text-white placeholder-gray-400 px-4 py-3 outline-none ring-1 ring-[#404244] focus:ring-indigo-500 transition"
-                  autoComplete="current-password"
-                  required
-                  disabled={loading}
-                />
-              </div>
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col min-h-0 min-w-0 bg-[#313338]">
+        <ChatView
+          channelId={currentChannel}
+          messages={messages}
+          onSend={handleSend}
+        />
+      </div>
 
-              <div className="flex items-center justify-between text-sm text-indigo-300">
-                <button
-                  type="button"
-                  onClick={() => alert("Password-reset flow placeholder")}
-                  className="text-indigo-300 hover:underline"
-                >
-                  Forgot your password?
-                </button>
-              </div>
-
-              {error && <p className="text-rose-400 text-sm">{error}</p>}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full mt-2 rounded-lg py-3 font-semibold text-white transition ${
-                  loading
-                    ? "bg-indigo-400/60 cursor-not-allowed"
-                    : "bg-indigo-500 hover:bg-indigo-600"
-                }`}
-              >
-                {loading ? "Logging in..." : "Log In"}
-              </button>
-
-              <p className="text-center text-sm text-gray-300 mt-3">
-                Need an account?{" "}
-                <Link
-                  href="/sign-up"
-                  className="text-indigo-300 hover:underline"
-                >
-                  Register
-                </Link>
-              </p>
-            </form>
-          </div>
-
-          {/* RIGHT: QR + info */}
-          <div className="flex flex-col items-center justify-center">
-            <div className="bg-[#fff] p-3 rounded-md shadow-sm mb-4">
-              {/* replace /qr-placeholder.png with your QR image */}
-              <img
-                src="/qr-placeholder.png"
-                alt="QR code"
-                className="w-40 h-40 object-contain"
-              />
-            </div>
-
-            <h2 className="text-lg font-semibold text-white">
-              Log in with QR Code
-            </h2>
-            <p className="text-center text-gray-300 mt-2 max-w-xs">
-              Scan this with the{" "}
-              <span className="font-semibold text-white">
-                Discord mobile app
-              </span>{" "}
-              to log in instantly.
-            </p>
-
-            <button
-              type="button"
-              onClick={() => alert("passkey login placeholder")}
-              className="mt-4 text-sm text-indigo-300 hover:underline"
-            >
-              Or, sign in with passkey
-            </button>
-          </div>
-        </div>
+      {/* Members Sidebar */}
+      <div className="flex-none w-60 bg-[#2b2d31] border-l border-[#1e1f22] overflow-y-auto custom-scroll">
+        <MembersSidebar />
       </div>
     </div>
   );

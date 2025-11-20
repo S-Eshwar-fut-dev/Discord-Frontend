@@ -2,23 +2,34 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Plus, Gift, Sticker, Smile } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import type { ChatMessage, ChatUser } from "@/types/chat";
 import IconButton from "../ui/IconButton";
 import { cn } from "@/lib/cn";
 
+// Default mock user - replace with real session
+const DEFAULT_USER: ChatUser = {
+  id: "u1",
+  username: "Eshwar",
+  avatar: "/avatars/1.png",
+  status: "online",
+};
+
 interface ComposerProps {
   channelId?: string;
-  onSend?: (content: string) => Promise<void>;
+  me?: ChatUser;
+  onSend?: (m: ChatMessage) => void;
 }
 
 export default function Composer({
   channelId = "general",
+  me = DEFAULT_USER,
   onSend,
 }: ComposerProps) {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
   useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
@@ -29,18 +40,26 @@ export default function Composer({
 
   async function handleSend() {
     const trimmed = text.trim();
-    if (!trimmed || sending || !onSend) return;
+    if (!trimmed || sending) return;
 
     setSending(true);
 
-    try {
-      await onSend(trimmed);
-      setText("");
-    } catch (err) {
-      console.error("Failed to send message:", err);
-    } finally {
+    const tempId = "temp_" + uuidv4().slice(0, 8);
+    const tempMessage: ChatMessage = {
+      id: tempId,
+      channelId,
+      author: me,
+      content: trimmed,
+      createdAt: new Date().toISOString(),
+      temp: true,
+    };
+
+    onSend?.(tempMessage);
+    setText("");
+
+    setTimeout(() => {
       setSending(false);
-    }
+    }, 300);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -53,14 +72,12 @@ export default function Composer({
   return (
     <div className="px-4 pb-6">
       <div className="flex items-end gap-4 bg-[#383a40] rounded-lg px-4 py-3">
-        {/* Attachment button */}
         <IconButton
           icon={<Plus size={20} />}
           label="Add attachments"
           className="text-[#b5bac1] hover:text-white"
         />
 
-        {/* Text input */}
         <div className="flex-1 relative">
           <textarea
             ref={textareaRef}
@@ -78,7 +95,6 @@ export default function Composer({
           />
         </div>
 
-        {/* Right actions */}
         <div className="flex items-center gap-2">
           <IconButton
             icon={<Gift size={20} />}
@@ -98,7 +114,6 @@ export default function Composer({
         </div>
       </div>
 
-      {/* Character count (optional) */}
       {text.length > 1900 && (
         <div className="mt-2 text-xs text-right">
           <span
@@ -109,11 +124,6 @@ export default function Composer({
             {text.length} / 2000
           </span>
         </div>
-      )}
-
-      {/* Sending indicator */}
-      {sending && (
-        <div className="mt-2 text-xs text-[#87888c]">Sending message...</div>
       )}
     </div>
   );

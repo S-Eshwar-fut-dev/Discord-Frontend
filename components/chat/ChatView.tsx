@@ -11,7 +11,7 @@ interface ChatViewProps {
   channelName?: string;
   channelTopic?: string;
   messages: ChatMessage[];
-  onSend: (content: string) => Promise<void>;
+  onSend: (message: ChatMessage) => void;
   loading?: boolean;
   hasMore?: boolean;
   onLoadMore?: () => Promise<void>;

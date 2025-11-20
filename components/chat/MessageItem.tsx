@@ -13,7 +13,6 @@ import Avatar from "../ui/Avatar";
 import { formatTimestamp } from "@/lib/time";
 import { cn } from "@/lib/cn";
 import type { ChatMessage } from "@/types/chat";
-
 interface MessageItemProps {
   message: ChatMessage;
   isFirstInGroup?: boolean;

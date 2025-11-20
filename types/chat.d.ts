@@ -9,6 +9,9 @@ export interface ChatMessage extends Message {
   optimistic?: boolean;
 }
 
+// Alias for compatibility (some components expect ChatUser)
+export type ChatUser = User;
+
 export interface SendMessagePayload {
   channelId: string;
   content: string;
