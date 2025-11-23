@@ -5,7 +5,7 @@ import { Plus, Gift, Sticker, Smile } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import type { ChatMessage, ChatUser } from "@/types/chat";
 import IconButton from "../ui/IconButton";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 // Default mock user - replace with real session
 const DEFAULT_USER: ChatUser = {

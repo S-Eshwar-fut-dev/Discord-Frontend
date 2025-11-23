@@ -6,7 +6,7 @@ import DMItem from "./DMItem";
 import { mockFriends, type Friend } from "@/components/mocks/mockFriends";
 import { useFriendsStore } from "@/store/friends";
 import IconButton from "@/components/ui/IconButton";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 interface DMSidebarProps {
   onOpenDM?: (f: Friend) => void;

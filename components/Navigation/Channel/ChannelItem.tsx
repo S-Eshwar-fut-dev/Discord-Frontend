@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Hash, Volume2, Lock, Settings } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 import IconButton from "@/components/ui/IconButton";
 
 interface ChannelItemProps {

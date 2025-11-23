@@ -11,7 +11,7 @@ import {
   shouldShowDaySeparator,
   getDaySeparator,
 } from "@/lib/utils/messageGrouping";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 import type { ChatMessage } from "@/types/chat";
 
 interface MessageListVirtualProps {

@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import MemberItem from "./MemberItem";
 import { mockMembers, type Member } from "@/components/mocks/mockMembers";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 interface MembersSidebarProps {
   compact?: boolean;

@@ -3,7 +3,7 @@
 import React from "react";
 import { Wifi, WifiOff } from "lucide-react";
 import { useWebSocket } from "@/hooks/useWebSocket";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 interface ConnectionStatusProps {
   className?: string;

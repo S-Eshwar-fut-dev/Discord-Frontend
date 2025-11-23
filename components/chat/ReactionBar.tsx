@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 import type { Reaction } from "@/types/reaction";
 
 interface ReactionBarProps {

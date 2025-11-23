@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 import Avatar from "@/components/ui/Avatar";
 import type { Member } from "@/components/mocks/mockMembers";
 

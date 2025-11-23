@@ -4,7 +4,7 @@ import React from "react";
 import { X } from "lucide-react";
 import { Friend } from "@/components/mocks/mockFriends";
 import Avatar from "@/components/ui/Avatar";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 interface DMItemProps {
   friend: Friend;

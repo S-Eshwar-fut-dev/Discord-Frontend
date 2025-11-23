@@ -12,7 +12,7 @@ import {
 import { AnimatePresence } from "framer-motion";
 import Avatar from "../ui/Avatar";
 import { formatTimestamp } from "@/lib/time";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 import type { ChatMessage } from "@/types/chat";
 import ReactionPicker from "./ReactionPicker";
 import ReactionBar from "./ReactionBar";

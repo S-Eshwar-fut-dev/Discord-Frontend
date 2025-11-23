@@ -5,7 +5,7 @@ import { Hash, Volume2 } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 interface CreateChannelModalProps {
   isOpen: boolean;
