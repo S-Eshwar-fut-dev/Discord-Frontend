@@ -14,12 +14,15 @@ import {
 import { cn } from "@/lib/utils/cn";
 import type { ChatMessage } from "@/types/chat";
 
-interface MessageListVirtualProps {
+export interface MessageListVirtualProps {
   messages: ChatMessage[];
   unreadMessageId?: string | null;
   loading?: boolean;
   hasMore?: boolean;
   onLoadMore?: () => Promise<void>;
+  currentUserId?: string;
+  onEditMessage?: (messageId: string, content: string) => Promise<void>;
+  onDeleteMessage?: (messageId: string) => Promise<void>;
 }
 
 type ListItem =
@@ -34,6 +37,10 @@ export default function MessageListVirtual({
   loading = false,
   hasMore = false,
   onLoadMore,
+  // 👇 Destructure new props
+  currentUserId,
+  onEditMessage,
+  onDeleteMessage,
 }: MessageListVirtualProps) {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [atBottom, setAtBottom] = useState(true);
@@ -170,10 +177,14 @@ export default function MessageListVirtual({
             return <UnreadMarker />;
           }
 
+          // 👇 Pass props to MessageItem here
           return (
             <MessageItem
               message={item.message}
               isFirstInGroup={item.isFirstInGroup}
+              currentUserId={currentUserId}
+              onEdit={onEditMessage}
+              onDelete={onDeleteMessage}
             />
           );
         }}

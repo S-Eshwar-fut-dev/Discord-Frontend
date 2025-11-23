@@ -1,149 +1,84 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { X } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
+import React, { useState, useRef, useEffect } from "react";
 
-export interface MessageEditorProps {
+interface MessageEditorProps {
   initialContent: string;
-  onSave: (content: string) => Promise<void>;
+  onSave: (newContent: string) => void;
   onCancel: () => void;
-  placeholder?: string;
 }
 
-/**
- * Inline message editor with Escape/Enter shortcuts
- */
 export default function MessageEditor({
   initialContent,
   onSave,
   onCancel,
-  placeholder = "Edit message",
 }: MessageEditorProps) {
   const [content, setContent] = useState(initialContent);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-focus and select all on mount
   useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.focus();
-      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    // Auto-focus and resize on mount
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.selectionStart = textareaRef.current.value.length;
+      adjustHeight();
     }
   }, []);
 
-  // Auto-resize textarea
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+  const adjustHeight = () => {
+    const el = textareaRef.current;
+    if (el) {
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
     }
-  }, [content]);
+  };
 
-  const handleSave = useCallback(async () => {
-    const trimmed = content.trim();
-
-    // Can't save empty message
-    if (!trimmed) {
-      setError("Message cannot be empty");
-      return;
-    }
-
-    // No changes
-    if (trimmed === initialContent.trim()) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
       onCancel();
+    } else if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
+  const handleSave = () => {
+    if (content.trim() === "") return; // Don't save empty
+    if (content.trim() === initialContent) {
+      onCancel(); // No change
       return;
     }
-
-    try {
-      setSaving(true);
-      setError(null);
-      await onSave(trimmed);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save");
-      setSaving(false);
-    }
-  }, [content, initialContent, onSave, onCancel]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      // Escape to cancel
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onCancel();
-      }
-
-      // Enter to save (Shift+Enter for new line)
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        handleSave();
-      }
-    },
-    [onCancel, handleSave]
-  );
+    onSave(content.trim());
+  };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="relative">
-        <textarea
-          ref={textareaRef}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={saving}
-          className={cn(
-            "w-full px-3 py-2 bg-[#383a40] text-[#dbdee1] placeholder-[#87888c]",
-            "rounded-md resize-none outline-none",
-            "focus:ring-1 focus:ring-[#00a8fc]",
-            "disabled:opacity-50 disabled:cursor-not-allowed"
-          )}
-          rows={1}
-        />
-
-        {/* Character count */}
-        {content.length > 1900 && (
-          <div className="absolute bottom-2 right-2 text-xs">
-            <span
-              className={cn(
-                content.length > 2000 ? "text-[#f23f43]" : "text-[#949ba4]"
-              )}
-            >
-              {content.length} / 2000
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Error message */}
-      {error && (
-        <div className="text-xs text-[#f23f43] flex items-center gap-1">
-          <X size={12} />
-          {error}
-        </div>
-      )}
-
-      {/* Help text */}
-      <div className="text-xs text-[#87888c]">
-        Press <kbd className="px-1 py-0.5 bg-[#1e1f22] rounded">Escape</kbd> to{" "}
-        <button
+    <div className="w-full bg-[#383a40] rounded-[4px] mt-1 p-2 pr-4">
+      <textarea
+        ref={textareaRef}
+        value={content}
+        onChange={(e) => {
+          setContent(e.target.value);
+          adjustHeight();
+        }}
+        onKeyDown={handleKeyDown}
+        rows={1}
+        className="w-full bg-transparent text-[#dbdee1] resize-none outline-none font-light text-[15px] leading-[1.375rem] custom-scroll overflow-hidden"
+      />
+      <div className="text-[11px] text-[#b5bac1] mt-2">
+        escape to{" "}
+        <span
+          className="text-[#00a8fc] hover:underline cursor-pointer"
           onClick={onCancel}
-          className="text-[#00a8fc] hover:underline"
-          disabled={saving}
         >
           cancel
-        </button>{" "}
-        · Press <kbd className="px-1 py-0.5 bg-[#1e1f22] rounded">Enter</kbd> to{" "}
-        <button
+        </span>{" "}
+        • enter to{" "}
+        <span
+          className="text-[#00a8fc] hover:underline cursor-pointer"
           onClick={handleSave}
-          className="text-[#00a8fc] hover:underline"
-          disabled={saving}
         >
           save
-        </button>
+        </span>
       </div>
     </div>
   );
