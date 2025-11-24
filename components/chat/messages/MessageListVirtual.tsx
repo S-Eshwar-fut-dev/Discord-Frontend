@@ -3,9 +3,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
 import MessageItem from "./MessageItem";
-import DaySeparator from "./DaySeparator";
-import UnreadMarker from "./UnreadMarker";
-import Spinner from "../ui/Spinner";
+import DaySeparator from "../genericfeatures/DaySeparator";
+import UnreadMarker from "../genericfeatures/UnreadMarker";
+import Spinner from "../../ui/Spinner";
 import {
   shouldGroupMessages,
   shouldShowDaySeparator,

@@ -1,6 +1,9 @@
 // store/dms.ts
 import { create } from "zustand";
-import type { ChatMessage, ChatUser } from "@/components/chat/MessageItem";
+import type {
+  ChatMessage,
+  ChatUser,
+} from "@/components/chat/messages/MessageItem";
 
 export type Conversation = {
   id: string; // dm:{userId} or generated uuid for group

@@ -12,14 +12,14 @@ import {
   Copy,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import Avatar from "../ui/Avatar";
+import Avatar from "../../ui/Avatar";
 import MessageEditor from "./MessageEditor";
-import DeleteMessageModal from "../overlays/DeleteMessageModal";
+import DeleteMessageModal from "../../overlays/DeleteMessageModal";
 import { formatTimestamp, formatFullTimestamp } from "@/lib/time";
 import { cn } from "@/lib/utils/cn";
 import type { ChatMessage } from "@/types/chat";
-import ReactionPicker from "./ReactionPicker";
-import ReactionBar from "./ReactionBar";
+import ReactionPicker from "../reactions/ReactionPicker";
+import ReactionBar from "../reactions/ReactionBar";
 import { useReactionsStore } from "@/store/reactions";
 
 export interface MessageItemProps {

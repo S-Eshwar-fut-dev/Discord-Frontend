@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
-import MessageListVirtual from "./MessageListVirtual";
+import MessageListVirtual from "./messages/MessageListVirtual";
 import Composer from "./Composer";
 import ChannelHeader from "./ChannelHeader";
 import type { ChatMessage } from "@/types/chat";
