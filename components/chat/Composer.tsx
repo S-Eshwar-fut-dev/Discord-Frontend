@@ -8,6 +8,7 @@ import IconButton from "../ui/IconButton";
 import FilePreview from "./fileuploads/FilePreview";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { cn } from "@/lib/utils/cn";
+import { useTyping } from "@/hooks/useTyping";
 
 const DEFAULT_USER: ChatUser = {
   id: "u1",
@@ -31,6 +32,7 @@ export default function Composer({
   const [sending, setSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { startTyping } = useTyping(channelId);
 
   const { files, uploading, addFiles, removeFile, uploadFiles, clearFiles } =
     useFileUpload();
@@ -69,6 +71,12 @@ export default function Composer({
     e.preventDefault();
   };
 
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setText(e.target.value);
+    if (e.target.value.length > 0) {
+      startTyping();
+    }
+  };
   // Handle send
   async function handleSend() {
     const trimmed = text.trim();
@@ -140,7 +148,7 @@ export default function Composer({
             <textarea
               ref={textareaRef}
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={handleTextChange}
               onKeyDown={handleKeyDown}
               placeholder={
                 files.length > 0 ? "Add a message..." : `Message #${channelId}`
