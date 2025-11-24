@@ -6,6 +6,7 @@ import Composer from "./Composer";
 import ChannelHeader from "./ChannelHeader";
 import type { ChatMessage } from "@/types/chat";
 import { wsClient } from "@/lib/wsClient";
+import TypingIndicator from "./TypingIndicator";
 
 export interface ChatViewProps {
   channelId?: string;
@@ -96,7 +97,7 @@ export default function ChatView({
           onDeleteMessage={handleDelete}
         />
       </div>
-
+      <TypingIndicator channelId={channelId} />
       {/* Composer */}
       <Composer channelId={channelId} onSend={onSend} />
     </div>
