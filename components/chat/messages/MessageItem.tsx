@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Pin,
   Copy,
+  MessageSquare,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Avatar from "../../ui/Avatar";
@@ -21,6 +22,7 @@ import type { ChatMessage } from "@/types/chat";
 import ReactionPicker from "../reactions/ReactionPicker";
 import ReactionBar from "../reactions/ReactionBar";
 import { useReactionsStore } from "@/store/reactions";
+import { useThreads } from "@/hooks/useThreads";
 
 export interface MessageItemProps {
   message: ChatMessage;
@@ -53,6 +55,7 @@ export default React.memo(function MessageItem({
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { openThread } = useThreads();
 
   const { getReactions, addReaction, removeReaction } = useReactionsStore();
   const reactions = getReactions(message.id);
@@ -307,6 +310,11 @@ export default React.memo(function MessageItem({
                 icon={<SmilePlus size={18} />}
                 label="Add reaction"
                 onClick={() => setShowReactionPicker(!showReactionPicker)}
+              />
+              <ActionButton
+                icon={<MessageSquare size={18} />}
+                label="Create Thread"
+                onClick={() => openThread(message)}
               />
               {onReply && (
                 <ActionButton
