@@ -5,3 +5,6 @@ export { default as Input } from "./Input";
 export { default as Modal } from "./Modal";
 export { default as PresenceBadge } from "./PresenceBadge";
 export { default as Spinner } from "./Spinner";
+export { default as UploadProgress } from "./UploadProgress";
+export { default as ConnectionStatus } from "./ConnectionStatus";
+export { default as DateSelect } from "/Discord-Frontend/components/DateSelect";
