@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
-import Modal from "@/components/ui/Modal";
+import Modal from "@/components/modals/Modal";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 

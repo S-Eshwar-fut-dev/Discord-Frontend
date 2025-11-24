@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useFriendsStore } from "@/store/friends";
 import { v4 as uuidv4 } from "uuid";
-import Modal from "@/components/ui/Modal";
+import Modal from "@/components/modals/Modal";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 
