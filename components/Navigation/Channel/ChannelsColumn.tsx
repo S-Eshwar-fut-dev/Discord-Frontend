@@ -7,6 +7,7 @@ import ChannelItem from "./ChannelItem";
 import IconButton from "@/components/ui/IconButton";
 import CreateChannelModal from "@/components/overlays/CreateChannelModal";
 import { mockChannels } from "@/components/mocks/channels";
+import ChannelSettingsModal from "@/components/overlays/ChannelSettingsModal";
 
 interface Channel {
   id: string;
@@ -15,6 +16,7 @@ interface Channel {
   category: string;
   unread?: boolean;
   mentions?: number;
+  topic?: string;
 }
 
 export default function ChannelsColumn() {
@@ -24,7 +26,7 @@ export default function ChannelsColumn() {
   const [channels, setChannels] = useState<Channel[]>(
     mockChannels as Channel[]
   );
-
+  const [settingsChannel, setSettingsChannel] = useState<Channel | null>(null);
   // Group channels by category
   const groupedChannels = channels.reduce((acc, channel) => {
     if (!acc[channel.category]) {
@@ -45,6 +47,20 @@ export default function ChannelsColumn() {
       category: "Text Channels",
     };
     setChannels([...channels, newChannel]);
+  };
+
+  const handleUpdateChannel = (
+    id: string,
+    data: { name: string; topic: string }
+  ) => {
+    setChannels((prev) =>
+      prev.map((ch) => (ch.id === id ? { ...ch, ...data } : ch))
+    );
+  };
+
+  const handleDeleteChannel = (id: string) => {
+    setChannels((prev) => prev.filter((ch) => ch.id !== id));
+    if (activeChannel === id) setActiveChannel("");
   };
 
   return (
@@ -106,15 +122,28 @@ export default function ChannelsColumn() {
                 onCreateChannel={() => setShowCreateChannel(true)}
               >
                 {categoryChannels.map((channel) => (
-                  <ChannelItem
-                    key={channel.id}
-                    name={channel.name}
-                    type={channel.type}
-                    selected={activeChannel === channel.id}
-                    unread={channel.unread}
-                    mentions={channel.mentions}
-                    onClick={() => setActiveChannel(channel.id)}
-                  />
+                  <div key={channel.id} className="group/item relative">
+                    <ChannelItem
+                      name={channel.name}
+                      type={channel.type}
+                      selected={activeChannel === channel.id}
+                      unread={channel.unread}
+                      mentions={channel.mentions}
+                      onClick={() => setActiveChannel(channel.id)}
+                    />
+                    {/* Settings Gear - Appears on Hover */}
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                      <IconButton
+                        icon={<Settings size={14} />}
+                        label="Edit Channel"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSettingsChannel(channel);
+                        }}
+                      />
+                    </div>
+                  </div>
                 ))}
               </ChannelCategory>
             )
@@ -150,6 +179,13 @@ export default function ChannelsColumn() {
           </div>
         </div>
       </div>
+
+      <ChannelSettingsModal
+        channel={settingsChannel}
+        onClose={() => setSettingsChannel(null)}
+        onSave={handleUpdateChannel}
+        onDelete={handleDeleteChannel}
+      />
 
       <CreateChannelModal
         isOpen={showCreateChannel}
