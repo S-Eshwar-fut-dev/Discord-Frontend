@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { Upload } from "lucide-react";
+import React from "react";
+import { Upload, ChevronRight, Camera } from "lucide-react";
 import Modal from "@/components/modals/Modal";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { useCreateServer } from "@/hooks/useCreateServer";
+import { cn } from "@/lib/utils/cn";
 
 interface CreateServerModalProps {
   isOpen: boolean;
@@ -15,33 +17,20 @@ export default function CreateServerModal({
   isOpen,
   onClose,
 }: CreateServerModalProps) {
-  const [serverName, setServerName] = useState("");
-  const [serverIcon, setServerIcon] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const {
+    step,
+    setStep,
+    serverName,
+    setServerName,
+    iconFile,
+    addFiles,
+    loading,
+    handleCreate,
+  } = useCreateServer(onClose);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Handle server creation
-    console.log("Create server:", { serverName, serverIcon });
-
-    setLoading(false);
-    setServerName("");
-    setServerIcon(null);
-    onClose();
-  };
-
-  const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setServerIcon(event.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+  const handleIconSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      addFiles([e.target.files[0]]);
     }
   };
 
@@ -49,62 +38,150 @@ export default function CreateServerModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Create Your Server"
-      size="sm"
+      title=""
+      size="md"
+      showClose={true}
     >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <p className="text-sm text-[#b5bac1] text-center">
-          Give your server a personality with a name and icon. You can always
-          change it later.
-        </p>
+      <div className="text-center">
+        {step === "start" ? (
+          <>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              Create Your Server
+            </h2>
+            <p className="text-[#b5bac1] mb-6 px-4">
+              Your server is where you and your friends hang out. Make yours and
+              start talking.
+            </p>
 
-        {/* Server Icon Upload */}
-        <div className="flex flex-col items-center gap-4">
-          <label
-            htmlFor="server-icon"
-            className="relative w-24 h-24 flex items-center justify-center bg-[#1e1f22] border-2 border-dashed border-[#3f4147] rounded-full cursor-pointer hover:border-[#4e5058] transition-colors group overflow-hidden"
-          >
-            {serverIcon ? (
-              <img
-                src={serverIcon}
-                alt="Server icon"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center gap-1">
-                <Upload size={24} className="text-[#b5bac1]" />
-                <span className="text-xs text-[#87888c]">Upload</span>
+            <div className="space-y-2 mb-4 text-left">
+              <button
+                onClick={() => setStep("customize")}
+                className="w-full flex items-center justify-between p-4 rounded-lg border border-[#3f4147] hover:bg-[#35373c] transition-colors group"
+              >
+                <div className="flex items-center gap-4">
+                  <img
+                    src="/server1.png"
+                    alt="Create"
+                    className="w-10 h-10 object-cover rounded"
+                  />
+                  <span className="font-bold text-[#dbdee1]">
+                    Create My Own
+                  </span>
+                </div>
+                <ChevronRight className="text-[#b5bac1]" />
+              </button>
+
+              <div className="text-xs font-bold text-[#949ba4] uppercase mt-4 mb-2">
+                Start from a template
               </div>
-            )}
-            <input
-              id="server-icon"
-              type="file"
-              accept="image/*"
-              onChange={handleIconUpload}
-              className="hidden"
-            />
-          </label>
-          <p className="text-xs text-[#87888c]">Recommended: 512x512</p>
-        </div>
 
-        {/* Server Name */}
-        <Input
-          label="Server Name"
-          value={serverName}
-          onChange={(e) => setServerName(e.target.value)}
-          placeholder="My Awesome Server"
-          required
-        />
+              {["Gaming", "School Club", "Study Group"].map((label) => (
+                <button
+                  key={label}
+                  onClick={() => {
+                    setServerName(`${label} Server`);
+                    setStep("customize");
+                  }}
+                  className="w-full flex items-center justify-between p-4 rounded-lg border border-[#3f4147] hover:bg-[#35373c] transition-colors"
+                >
+                  <span className="font-bold text-[#dbdee1]">{label}</span>
+                  <ChevronRight className="text-[#b5bac1]" />
+                </button>
+              ))}
+            </div>
 
-        <div className="flex justify-between items-center pt-2">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>
-            Back
-          </Button>
-          <Button type="submit" loading={loading}>
-            Create Server
-          </Button>
-        </div>
-      </form>
+            <div className="bg-[#2b2d31] p-4 -mx-6 -mb-4 mt-6">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-white mb-2">
+                  Have an invite already?
+                </h3>
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={onClose}
+                >
+                  Join a Server
+                </Button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <form onSubmit={handleCreate}>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              Customize Your Server
+            </h2>
+            <p className="text-[#b5bac1] mb-6 px-4">
+              Give your new server a personality with a name and an icon. You
+              can always change it later.
+            </p>
+
+            {/* Upload Area */}
+            <div className="flex justify-center mb-6">
+              <div className="relative group">
+                <label
+                  className={cn(
+                    "flex items-center justify-center w-24 h-24 rounded-full border-2 border-dashed border-[#4e5058] cursor-pointer overflow-hidden transition-all",
+                    iconFile ? "border-none" : "hover:bg-[#2b2d31]"
+                  )}
+                >
+                  {iconFile ? (
+                    <img
+                      src={URL.createObjectURL(iconFile.file)}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Camera className="text-[#b5bac1]" size={24} />
+                      <span className="text-xs font-bold text-[#b5bac1] uppercase">
+                        Upload
+                      </span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleIconSelect}
+                  />
+
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <span className="text-xs text-white font-bold">CHANGE</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div className="text-left mb-8">
+              <Input
+                label="Server Name"
+                value={serverName}
+                onChange={(e) => setServerName(e.target.value)}
+                placeholder="My Server"
+                required
+              />
+              <p className="text-xs text-[#949ba4] mt-2">
+                By creating a server, you agree to Eoncord's Community
+                Guidelines.
+              </p>
+            </div>
+
+            <div className="bg-[#2b2d31] p-4 -mx-6 -mb-4 mt-6 flex justify-between items-center">
+              <button
+                type="button"
+                onClick={() => setStep("start")}
+                className="text-sm text-[#dbdee1] hover:underline font-medium"
+              >
+                Back
+              </button>
+              <Button type="submit" loading={loading} disabled={!serverName}>
+                Create
+              </Button>
+            </div>
+          </form>
+        )}
+      </div>
     </Modal>
   );
 }
