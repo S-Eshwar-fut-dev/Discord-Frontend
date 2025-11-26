@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronDown, Bell, Settings } from "lucide-react";
+import { ChevronDown, Bell, Settings, User } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 
 import ChannelCategory from "./ChannelCategory";
@@ -15,6 +15,7 @@ import CustomStatusModal from "@/components/overlays/CustomStatusModal";
 import { mockChannels } from "@/components/mocks/channels";
 import { useVoice } from "@/hooks/useVoice";
 import { useIdle } from "@/hooks/useIdle";
+import UserSettingsModal from "@/components/overlays/UserSettingsModal";
 
 interface Channel {
   id: string;
@@ -34,6 +35,7 @@ export default function ChannelsColumn() {
   // Status Menu State
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [showCustomStatus, setShowCustomStatus] = useState(false);
+  const [showUserSettings, setshowUserSettings] = useState(false);
 
   const [channels, setChannels] = useState<Channel[]>(
     mockChannels as Channel[]
@@ -113,6 +115,7 @@ export default function ChannelsColumn() {
               onClick={() => {
                 setShowCreateChannel(true);
                 setShowServerMenu(false);
+                UserSettingsModal;
               }}
               className="w-full px-3 py-2 text-left text-sm text-[#dbdee1] hover:bg-[#35373c] rounded transition-colors"
             >
@@ -206,6 +209,7 @@ export default function ChannelsColumn() {
               icon={<Settings size={18} />}
               label="Settings"
               size="sm"
+              onClick={() => setshowUserSettings(true)}
             />
           </div>
 
@@ -239,6 +243,10 @@ export default function ChannelsColumn() {
       <CustomStatusModal
         isOpen={showCustomStatus}
         onClose={() => setShowCustomStatus(false)}
+      />
+      <UserSettingsModal
+        isOpen={showUserSettings}
+        onClose={() => setshowUserSettings(false)}
       />
     </>
   );
