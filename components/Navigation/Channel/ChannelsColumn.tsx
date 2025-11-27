@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { ChevronDown, Bell, Settings, User } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronDown, Bell, Settings } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
+import { useParams, useRouter } from "next/navigation";
 
 import ChannelCategory from "./ChannelCategory";
 import ChannelItem from "./ChannelItem";
@@ -27,8 +28,25 @@ interface Channel {
   topic?: string;
 }
 
-export default function ChannelsColumn() {
-  const [activeChannel, setActiveChannel] = useState("1");
+// 1. Defined the props expected from layout.tsx
+interface ChannelsColumnProps {
+  guildId: string;
+  guildName: string;
+}
+
+export default function ChannelsColumn({
+  guildId,
+  guildName,
+}: ChannelsColumnProps) {
+  // Use params to sync active state with URL
+  const params = useParams();
+  const router = useRouter();
+
+  // 2. Initialize activeChannel based on URL if possible, or default to "1"
+  const [activeChannel, setActiveChannel] = useState(
+    (params?.channelId as string) || "1"
+  );
+
   const [showServerMenu, setShowServerMenu] = useState(false);
   const [showCreateChannel, setShowCreateChannel] = useState(false);
 
@@ -44,7 +62,6 @@ export default function ChannelsColumn() {
   const { currentChannelId, joinChannel, participants } = useVoice();
   const [settingsChannel, setSettingsChannel] = useState<Channel | null>(null);
 
-  // Initialize Auto-Idle hook
   useIdle();
 
   // Group channels by category
@@ -66,7 +83,8 @@ export default function ChannelsColumn() {
       id: `${Date.now()}`,
       name: data.name,
       type: data.type,
-      category: "Text Channels",
+      // 3. Logic Fix: Assign category based on type
+      category: data.type === "voice" ? "Voice Channels" : "Text Channels",
     };
     setChannels([...channels, newChannel]);
   };
@@ -85,6 +103,16 @@ export default function ChannelsColumn() {
     if (activeChannel === id) setActiveChannel("");
   };
 
+  const handleChannelClick = (channel: Channel) => {
+    if (channel.type === "voice") {
+      joinChannel(channel.id);
+    } else {
+      setActiveChannel(channel.id);
+      // 4. Navigate when clicking a channel
+      router.push(`/${guildId}/${channel.id}`);
+    }
+  };
+
   return (
     <>
       <div className="h-full flex flex-col bg-[#2b2d31]">
@@ -93,7 +121,8 @@ export default function ChannelsColumn() {
           onClick={() => setShowServerMenu(!showServerMenu)}
           className="flex-none h-12 px-4 flex items-center justify-between border-b border-[#1e1f22] hover:bg-[#35373c] transition-colors"
         >
-          <span className="font-semibold text-white">Eoncord Server</span>
+          {/* 5. Use the actual guildName prop */}
+          <span className="font-semibold text-white truncate">{guildName}</span>
           <ChevronDown
             size={18}
             className={`text-[#b5bac1] transition-transform ${
@@ -115,7 +144,7 @@ export default function ChannelsColumn() {
               onClick={() => {
                 setShowCreateChannel(true);
                 setShowServerMenu(false);
-                UserSettingsModal;
+                // 6. Removed the stray "UserSettingsModal;" line
               }}
               className="w-full px-3 py-2 text-left text-sm text-[#dbdee1] hover:bg-[#35373c] rounded transition-colors"
             >
@@ -151,13 +180,7 @@ export default function ChannelsColumn() {
                           ? participants
                           : []
                       }
-                      onClick={() => {
-                        if (channel.type === "voice") {
-                          joinChannel(channel.id);
-                        } else {
-                          setActiveChannel(channel.id);
-                        }
-                      }}
+                      onClick={() => handleChannelClick(channel)}
                     />
                     {/* Settings Gear - Appears on Hover */}
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/item:opacity-100 transition-opacity">
@@ -181,7 +204,7 @@ export default function ChannelsColumn() {
         {/* Voice Control Panel */}
         <VoiceControlPanel />
 
-        {/* User Profile Bar (Updated) */}
+        {/* User Profile Bar */}
         <div className="flex-none h-14 px-2 flex items-center justify-between bg-[#232428] border-t border-[#1e1f22] relative">
           <div
             className="flex items-center gap-2 min-w-0 hover:bg-[#3f4147] p-1 rounded cursor-pointer transition-colors"
@@ -213,7 +236,6 @@ export default function ChannelsColumn() {
             />
           </div>
 
-          {/* Status Menu Popover */}
           <AnimatePresence>
             {showStatusMenu && (
               <UserStatusMenu
@@ -239,7 +261,6 @@ export default function ChannelsColumn() {
         onSubmit={handleCreateChannel}
       />
 
-      {/* Custom Status Modal */}
       <CustomStatusModal
         isOpen={showCustomStatus}
         onClose={() => setShowCustomStatus(false)}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Compass } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import CreateServerModal from "@/components/overlays/CreateServerModal";
 import GuildIcon from "./GuildIcon";
@@ -14,30 +15,37 @@ const mockGuilds = [
     label: "Direct Messages",
     short: "Dc",
     icon: "/discord-logo-white.svg",
-  }, // Ensure this icon exists in /public or use text
+  },
   { id: "es", label: "Eshwar S", short: "ES", color: "#8b5cf6" },
   { id: "fm", label: "Fm", short: "Fm", color: "#fb7185" },
 ];
 
-export default function GuildsRail() {
-  const [active, setActive] = useState<string>("home");
+// 1. Corrected Interface Name
+interface GuildsRailProps {
+  activeGuildId: string;
+}
+
+// 2. Removed unused 'guildName' prop
+export default function GuildsRail({ activeGuildId }: GuildsRailProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const router = useRouter();
+
+  // Helper to handle navigation
+  const handleNavigation = (guildId: string) => {
+    if (guildId === "home") {
+      router.push("/me");
+    } else {
+      router.push(`/${guildId}/general`);
+    }
+  };
 
   return (
     <>
-      {/* Sidebar Container 
-        - Fixed width 72px
-        - Full viewport height (h-screen)
-        - Dark background (#1E1F22)
-        - Flex column
-        - Hidden Scrollbar logic added to classList
-      */}
       <nav
         className={cn(
           "w-[72px] h-screen flex flex-col items-center py-3 select-none",
           "bg-[#1E1F22]",
           "overflow-y-auto",
-          // Hide scrollbar but allow scrolling
           "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         )}
       >
@@ -46,9 +54,9 @@ export default function GuildsRail() {
           <ServerTooltip label="Direct Messages">
             <GuildIcon
               name="Direct Messages"
-              icon={mockGuilds[0].icon} // Or fallback to text in GuildIcon if null
-              isActive={active === "home"}
-              onClick={() => setActive("home")}
+              icon={mockGuilds[0].icon}
+              isActive={activeGuildId === "home" || activeGuildId === "me"}
+              onClick={() => handleNavigation("home")}
               isHome
             />
           </ServerTooltip>
@@ -63,8 +71,8 @@ export default function GuildsRail() {
             <ServerTooltip key={g.id} label={g.label}>
               <GuildIcon
                 name={g.label}
-                isActive={active === g.id}
-                onClick={() => setActive(g.id)}
+                isActive={activeGuildId === g.id}
+                onClick={() => handleNavigation(g.id)}
               />
             </ServerTooltip>
           ))}
@@ -81,7 +89,8 @@ export default function GuildsRail() {
               className={cn(
                 "group relative flex items-center justify-center w-12 h-12 transition-all duration-200",
                 "rounded-3xl bg-[#313338] text-[#23a559]",
-                "hover:rounded-2xl hover:bg-[#23a559] hover:text-white"
+                "hover:rounded-2xl hover:bg-[#23a559] hover:text-white",
+                showCreateModal && "rounded-2xl bg-[#23a559] text-white"
               )}
             >
               <Plus size={24} className="transition-colors" />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import DateSelect from "@/components/DateSelect";
+import DateSelect from "@/app/(auth)/sign-up/DateSelect";
 
 export default function SignUpPage() {
   const [form, setForm] = useState({
@@ -75,7 +75,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#1b1930] via-[#222226] to-[#12225c] text-white px-4">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-[#1b1930] via-[#222226] to-[#12225c] text-white px-4">
       <div className="bg-[#313338] w-full max-w-lg rounded-2xl shadow-lg ring-1 ring-black/30 p-8 md:p-10">
         <h1 className="text-2xl font-bold text-center">Create an account</h1>
 
