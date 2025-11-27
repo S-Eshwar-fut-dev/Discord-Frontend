@@ -1,9 +1,18 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { ChevronDown, Bell, Settings } from "lucide-react";
+import React, { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import {
+  ChevronDown,
+  Bell,
+  Settings,
+  User,
+  Hash,
+  Volume2,
+  Plus,
+} from "lucide-react";
 import { AnimatePresence } from "framer-motion";
-import { useParams, useRouter } from "next/navigation";
+import { cn } from "@/lib/utils/cn";
 
 import ChannelCategory from "./ChannelCategory";
 import ChannelItem from "./ChannelItem";
@@ -13,10 +22,11 @@ import ChannelSettingsModal from "@/components/overlays/ChannelSettingsModal";
 import VoiceControlPanel from "@/components/voice/VoiceControlPanel";
 import UserStatusMenu from "@/components/Navigation/User/UserStatusMenu";
 import CustomStatusModal from "@/components/overlays/CustomStatusModal";
+import UserSettingsModal from "@/components/overlays/UserSettingsModal";
 import { mockChannels } from "@/components/mocks/channels";
 import { useVoice } from "@/hooks/useVoice";
 import { useIdle } from "@/hooks/useIdle";
-import UserSettingsModal from "@/components/overlays/UserSettingsModal";
+import { useSessionStore } from "@/store/session";
 
 interface Channel {
   id: string;
@@ -28,7 +38,6 @@ interface Channel {
   topic?: string;
 }
 
-// 1. Defined the props expected from layout.tsx
 interface ChannelsColumnProps {
   guildId: string;
   guildName: string;
@@ -38,30 +47,26 @@ export default function ChannelsColumn({
   guildId,
   guildName,
 }: ChannelsColumnProps) {
-  // Use params to sync active state with URL
-  const params = useParams();
   const router = useRouter();
+  const params = useParams();
+  const { user } = useSessionStore();
 
-  // 2. Initialize activeChannel based on URL if possible, or default to "1"
-  const [activeChannel, setActiveChannel] = useState(
-    (params?.channelId as string) || "1"
-  );
+  const activeChannelId = params.channelId as string;
 
   const [showServerMenu, setShowServerMenu] = useState(false);
   const [showCreateChannel, setShowCreateChannel] = useState(false);
-
-  // Status Menu State
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [showCustomStatus, setShowCustomStatus] = useState(false);
-  const [showUserSettings, setshowUserSettings] = useState(false);
+  const [showUserSettings, setShowUserSettings] = useState(false);
+  const [settingsChannel, setSettingsChannel] = useState<Channel | null>(null);
 
   const [channels, setChannels] = useState<Channel[]>(
     mockChannels as Channel[]
   );
 
   const { currentChannelId, joinChannel, participants } = useVoice();
-  const [settingsChannel, setSettingsChannel] = useState<Channel | null>(null);
 
+  // Initialize Auto-Idle hook
   useIdle();
 
   // Group channels by category
@@ -73,8 +78,6 @@ export default function ChannelsColumn({
     return acc;
   }, {} as Record<string, Channel[]>);
 
-  // --- Handlers ---
-
   const handleCreateChannel = (data: {
     name: string;
     type: "text" | "voice";
@@ -83,8 +86,7 @@ export default function ChannelsColumn({
       id: `${Date.now()}`,
       name: data.name,
       type: data.type,
-      // 3. Logic Fix: Assign category based on type
-      category: data.type === "voice" ? "Voice Channels" : "Text Channels",
+      category: "Text Channels",
     };
     setChannels([...channels, newChannel]);
   };
@@ -100,16 +102,13 @@ export default function ChannelsColumn({
 
   const handleDeleteChannel = (id: string) => {
     setChannels((prev) => prev.filter((ch) => ch.id !== id));
-    if (activeChannel === id) setActiveChannel("");
   };
 
   const handleChannelClick = (channel: Channel) => {
     if (channel.type === "voice") {
       joinChannel(channel.id);
     } else {
-      setActiveChannel(channel.id);
-      // 4. Navigate when clicking a channel
-      router.push(`/${guildId}/${channel.id}`);
+      router.push(`/channels/${guildId}/${channel.id}`);
     }
   };
 
@@ -119,41 +118,42 @@ export default function ChannelsColumn({
         {/* Server Header */}
         <button
           onClick={() => setShowServerMenu(!showServerMenu)}
-          className="flex-none h-12 px-4 flex items-center justify-between border-b border-[#1e1f22] hover:bg-[#35373c] transition-colors"
+          className="flex-none h-12 px-4 flex items-center justify-between border-b border-[#1e1f22] hover:bg-[#35373c] transition-colors shadow-sm"
         >
-          {/* 5. Use the actual guildName prop */}
           <span className="font-semibold text-white truncate">{guildName}</span>
           <ChevronDown
             size={18}
-            className={`text-[#b5bac1] transition-transform ${
-              showServerMenu ? "rotate-180" : ""
-            }`}
+            className={cn(
+              "text-[#b5bac1] transition-transform shrink-0",
+              showServerMenu && "rotate-180"
+            )}
           />
         </button>
 
         {/* Server Menu Dropdown */}
         {showServerMenu && (
-          <div className="absolute top-12 left-0 right-0 mx-2 bg-[#111214] rounded-md shadow-2xl border border-[#1e1f22] p-2 z-50">
-            <button className="w-full px-3 py-2 text-left text-sm text-indigo-400 hover:bg-[#35373c] rounded transition-colors">
-              Invite People
-            </button>
-            <button className="w-full px-3 py-2 text-left text-sm text-[#dbdee1] hover:bg-[#35373c] rounded transition-colors">
-              Server Settings
-            </button>
-            <button
+          <div className="absolute top-12 left-[72px] w-[220px] bg-[#111214] rounded-md shadow-2xl border border-[#1e1f22] p-2 z-50">
+            <MenuItem
+              label="Invite People"
+              className="text-indigo-400 hover:bg-indigo-500/10"
+            />
+            <MenuItem label="Server Settings" icon={<Settings size={16} />} />
+            <MenuItem
+              label="Create Channel"
+              icon={<Plus size={16} />}
               onClick={() => {
                 setShowCreateChannel(true);
                 setShowServerMenu(false);
-                // 6. Removed the stray "UserSettingsModal;" line
               }}
-              className="w-full px-3 py-2 text-left text-sm text-[#dbdee1] hover:bg-[#35373c] rounded transition-colors"
-            >
-              Create Channel
-            </button>
+            />
+            <MenuItem label="Notification Settings" icon={<Bell size={16} />} />
+
             <div className="my-1 border-t border-[#3f4147]" />
-            <button className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-[#35373c] rounded transition-colors">
-              Leave Server
-            </button>
+
+            <MenuItem
+              label="Leave Server"
+              className="text-red-400 hover:bg-red-500/10"
+            />
           </div>
         )}
 
@@ -171,7 +171,7 @@ export default function ChannelsColumn({
                     <ChannelItem
                       name={channel.name}
                       type={channel.type}
-                      selected={activeChannel === channel.id}
+                      selected={activeChannelId === channel.id}
                       unread={channel.unread}
                       mentions={channel.mentions}
                       connectedUsers={
@@ -182,6 +182,7 @@ export default function ChannelsColumn({
                       }
                       onClick={() => handleChannelClick(channel)}
                     />
+
                     {/* Settings Gear - Appears on Hover */}
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/item:opacity-100 transition-opacity">
                       <IconButton
@@ -205,37 +206,38 @@ export default function ChannelsColumn({
         <VoiceControlPanel />
 
         {/* User Profile Bar */}
-        <div className="flex-none h-14 px-2 flex items-center justify-between bg-[#232428] border-t border-[#1e1f22] relative">
+        <div className="flex-none h-[52px] px-2 flex items-center justify-between bg-[#232428] border-t border-[#1e1f22] relative">
           <div
-            className="flex items-center gap-2 min-w-0 hover:bg-[#3f4147] p-1 rounded cursor-pointer transition-colors"
+            className="flex items-center gap-2 min-w-0 hover:bg-[#3f4147] p-1 rounded cursor-pointer transition-colors flex-1"
             onClick={() => setShowStatusMenu(!showStatusMenu)}
           >
-            <div className="relative">
+            <div className="relative shrink-0">
               <img
-                src="/avatars/1.png"
+                src={user?.avatar || "/avatars/1.png"}
                 alt="User"
                 className="w-8 h-8 rounded-full"
               />
               <span className="absolute bottom-0 right-0 w-3 h-3 bg-[#23a55a] border-2 border-[#232428] rounded-full" />
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="text-sm font-semibold text-white truncate">
-                Eshwar
+                {user?.username || "Eshwar"}
               </div>
-              <div className="text-xs text-[#87888c]">Online</div>
+              <div className="text-xs text-[#87888c] truncate">Online</div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
             <IconButton icon={<Bell size={18} />} label="Mute" size="sm" />
             <IconButton
               icon={<Settings size={18} />}
               label="Settings"
               size="sm"
-              onClick={() => setshowUserSettings(true)}
+              onClick={() => setShowUserSettings(true)}
             />
           </div>
 
+          {/* Status Menu Popover */}
           <AnimatePresence>
             {showStatusMenu && (
               <UserStatusMenu
@@ -265,10 +267,38 @@ export default function ChannelsColumn({
         isOpen={showCustomStatus}
         onClose={() => setShowCustomStatus(false)}
       />
+
       <UserSettingsModal
         isOpen={showUserSettings}
-        onClose={() => setshowUserSettings(false)}
+        onClose={() => setShowUserSettings(false)}
       />
     </>
+  );
+}
+
+// MenuItem Component
+function MenuItem({
+  label,
+  icon,
+  className,
+  onClick,
+}: {
+  label: string;
+  icon?: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "w-full px-3 py-2 text-left text-sm rounded transition-colors flex items-center gap-2",
+        "text-[#dbdee1] hover:bg-[#35373c]",
+        className
+      )}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
   );
 }
