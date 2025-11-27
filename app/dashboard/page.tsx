@@ -12,6 +12,7 @@ import type { ChatMessage } from "@/types/chat";
 import { useWebSocket } from "@/services/ws/useMockWebSocket";
 import { fetchMessages } from "@/services/api/messages";
 import { wsClient } from "@/lib/wsClient";
+import FriendsView from "@/components/friends/FriendsView";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   const [currentChannel] = useState("c-general");
   const [currentUserId] = useState("u1");
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"chat" | "friends">("chat");
 
   // Load initial messages
   useEffect(() => {
@@ -137,8 +139,6 @@ export default function DashboardPage() {
   const handleDeleteMessage = useCallback(async (messageId: string) => {
     // Optimistic delete
     setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
-
-    // Send via WebSocket
     if (wsClient.isConnected) {
       wsClient.send("message:delete", {
         messageId,
@@ -171,16 +171,20 @@ export default function DashboardPage() {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-h-0 min-w-0 bg-[#313338]">
-        <ChatView
-          channelId={currentChannel}
-          channelName="general"
-          channelTopic="General chat for everyone"
-          messages={messages}
-          currentUserId={currentUserId}
-          onSend={handleSend}
-          onEditMessage={handleEditMessage}
-          onDeleteMessage={handleDeleteMessage}
-        />
+        {view === "friends" ? (
+          <FriendsView />
+        ) : (
+          <ChatView
+            channelId={currentChannel}
+            channelName="general"
+            channelTopic="General chat for everyone"
+            messages={messages}
+            currentUserId={currentUserId}
+            onSend={handleSend}
+            onEditMessage={handleEditMessage}
+            onDeleteMessage={handleDeleteMessage}
+          />
+        )}
       </div>
 
       {/* Members Sidebar */}
