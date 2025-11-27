@@ -9,18 +9,18 @@ import { ChatMessage } from "@/types/chat";
 
 interface PageProps {
   params: Promise<{
-    userId: string;
+    guildId: string;
   }>;
 }
 export default function DMPage({ params }: PageProps) {
-  const { userId } = use(params);
-  const friend = mockFriends.find((f) => f.id === userId);
+  const { guildId } = use(params);
+  const friend = mockFriends.find((f) => f.id === guildId);
 
   if (!friend) {
     notFound();
   }
 
-  const dmChannelId = `dm-${userId}`;
+  const dmChannelId = `dm-${guildId}`;
 
   const { messages, loading, sendMessage } = useChat({
     channelId: dmChannelId,
