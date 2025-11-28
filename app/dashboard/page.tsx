@@ -166,7 +166,7 @@ export default function DashboardPage() {
 
       {/* Channels Sidebar */}
       <div className="flex-none w-60 bg-[#2b2d31] border-r border-[#1e1f22] flex flex-col min-h-0">
-        <ChannelsColumn />
+        <ChannelsColumn guildId={""} guildName={""} />
       </div>
 
       {/* Main Chat Area */}
