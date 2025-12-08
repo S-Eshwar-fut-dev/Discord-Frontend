@@ -18,9 +18,8 @@ export interface AvatarProps {
   loading?: "lazy" | "eager";
 }
 
-/**
- * Discord-style Avatar component with presence indicator
- */
+//Discord-style Avatar component with presence indicator
+
 export default function Avatar({
   src,
   alt = "avatar",
@@ -43,7 +42,6 @@ export default function Avatar({
     return "??";
   }, [fallback, alt]);
 
-  // Generate consistent color based on name
   const backgroundColor = useMemo(() => {
     const colors = [
       "#5865f2", // Blurple
@@ -128,11 +126,11 @@ export default function Avatar({
         </div>
       )}
 
-      {/* Presence badge */}
+      {/* Presence badge - enhanced visibility */}
       {status && showStatusBadge && (
         <div
           className={cn(
-            "absolute",
+            "absolute z-10",
             shape === "circle" ? "bottom-0 right-0" : "bottom-1 right-1"
           )}
         >
@@ -143,9 +141,8 @@ export default function Avatar({
   );
 }
 
-/**
- * Avatar Group - Display multiple avatars with overlap
- */
+//Avatar Group - Display multiple avatars with overlap
+
 export interface AvatarGroupProps {
   avatars: Array<{
     src?: string | null;
