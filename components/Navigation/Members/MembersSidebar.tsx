@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import MemberItem from "./MemberItem";
 import { mockMembers, type Member } from "@/components/mocks/mockMembers";
 import { cn } from "@/lib/utils/cn";
+import { motion } from "framer-motion";
 
 interface MembersSidebarProps {
   compact?: boolean;
@@ -43,7 +44,12 @@ export default function MembersSidebar({
   const onlineMembers = mockMembers.filter((m) => m.status === "online").length;
 
   return (
-    <aside className="h-full flex flex-col bg-[#2b2d31]">
+    <motion.aside
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.2 }}
+      className="h-full flex flex-col bg-[#2b2d31]"
+    >
       {/* Header */}
       <div className="flex-none px-3 py-4 border-b border-[#1e1f22]">
         <h2 className="text-xs font-semibold uppercase text-[#949ba4] mb-3">
@@ -93,6 +99,6 @@ export default function MembersSidebar({
           </div>
         )}
       </div>
-    </aside>
+    </motion.aside>
   );
 }
