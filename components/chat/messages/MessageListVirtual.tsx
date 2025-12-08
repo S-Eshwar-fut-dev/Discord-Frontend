@@ -2,7 +2,6 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
-import { motion } from "framer-motion";
 import MessageItem from "./MessageItem";
 import DaySeparator from "../genericfeatures/DaySeparator";
 import UnreadMarker from "../genericfeatures/UnreadMarker";
@@ -180,19 +179,13 @@ export default function MessageListVirtual({
           }
 
           return (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <MessageItem
-                message={item.message}
-                isFirstInGroup={item.isFirstInGroup}
-                currentUserId={currentUserId}
-                onEdit={onEditMessage}
-                onDelete={onDeleteMessage}
-              />
-            </motion.div>
+            <MessageItem
+              message={item.message}
+              isFirstInGroup={item.isFirstInGroup}
+              currentUserId={currentUserId}
+              onEdit={onEditMessage}
+              onDelete={onDeleteMessage}
+            />
           );
         }}
         components={{
