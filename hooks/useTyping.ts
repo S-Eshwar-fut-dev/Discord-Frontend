@@ -5,7 +5,7 @@ import { wsClient } from "@/lib/wsClient";
 import { useTypingStore } from "@/store/typing";
 import { useSessionStore } from "@/store/session";
 
-const TYPING_TIMEOUT = 5000; // Clear typing after 5s
+const TYPING_TIMEOUT = 1500; // Clear typing after 1.5s (updated from 5s)
 const SEND_THROTTLE = 2000; // Don't send "I'm typing" more than once every 2s
 
 export function useTyping(channelId: string) {
