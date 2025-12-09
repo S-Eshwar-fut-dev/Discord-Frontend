@@ -7,7 +7,7 @@ export const mockMessages: ChatMessage[] = [
     author: {
       id: "u1",
       username: "Eshwar S",
-      avatar: "/avatars/1.png",
+      avatar: "https://i.pravatar.cc/150?u=204",
       status: "online",
     },
     content: "Hey everyone! Welcome to Eoncord 🎉",
@@ -19,7 +19,7 @@ export const mockMessages: ChatMessage[] = [
     author: {
       id: "u2",
       username: "InnocentZero",
-      avatar: "/avatars/2.png",
+      avatar: "https://i.pravatar.cc/150?u=2",
       status: "offline",
     },
     content: "Thanks! This looks amazing",
@@ -33,7 +33,7 @@ export const mockMessages: ChatMessage[] = [
     author: {
       id: "u2",
       username: "InnocentZERO",
-      avatar: "/avatars/2.png",
+      avatar: "https://i.pravatar.cc/150?u=2",
       status: "offline",
     },
     content: "The UI is really clean",
@@ -47,7 +47,7 @@ export const mockMessages: ChatMessage[] = [
     author: {
       id: "u3",
       username: "KingDudeDS",
-      avatar: "/avatars/3.png",
+      avatar: "https://i.pravatar.cc/150?u=16",
       status: "idle",
     },
     content: "When are we launching this?",
@@ -59,7 +59,7 @@ export const mockMessages: ChatMessage[] = [
     author: {
       id: "u1",
       username: "Eshwar",
-      avatar: "/avatars/1.png",
+      avatar: "https://i.pravatar.cc/150?u=204",
       status: "online",
     },
     content: "Working on it! Should be ready soon.",
@@ -73,7 +73,7 @@ export const mockMessages: ChatMessage[] = [
     author: {
       id: "u1",
       username: "Eshwar",
-      avatar: "/avatars/1.png",
+      avatar: "https://i.pravatar.cc/150?u=204",
       status: "online",
     },
     content: "Just need to polish a few more components",
@@ -87,7 +87,7 @@ export const mockMessages: ChatMessage[] = [
     author: {
       id: "u4",
       username: "MONJIRO",
-      avatar: "/avatars/4.png",
+      avatar: "https://i.pravatar.cc/150?u=50",
       status: "dnd",
     },
     content: "I can help with testing if you need",
@@ -99,7 +99,7 @@ export const mockMessages: ChatMessage[] = [
     author: {
       id: "u1",
       username: "Eshwar",
-      avatar: "/avatars/1.png",
+      avatar: "https://i.pravatar.cc/150?u=204",
       status: "online",
     },
     content: "That would be great! Let me know what you find.",

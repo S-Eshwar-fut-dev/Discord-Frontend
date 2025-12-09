@@ -23,7 +23,8 @@ export default function ChannelCategory({
   return (
     <div className="mt-4">
       {/* Category Header */}
-      <button
+      <div
+        role="IconButton"
         onClick={() => setCollapsed(!collapsed)}
         className="group w-full flex items-center justify-between px-2 py-1 hover:text-[#dbdee1] transition-colors"
       >
@@ -50,7 +51,7 @@ export default function ChannelCategory({
             }}
           />
         )}
-      </button>
+      </div>
 
       {/* Channels */}
       {!collapsed && <div className="mt-0.5 space-y-0.5">{children}</div>}

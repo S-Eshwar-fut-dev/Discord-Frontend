@@ -12,7 +12,7 @@ export const mockMembers: Member[] = [
   {
     id: "1",
     username: "",
-    avatar: "",
+    avatar: "https://i.pravatar.cc/150?u=204",
     status: "online",
     role: "Owner",
     tag: "#0001",
@@ -20,8 +20,7 @@ export const mockMembers: Member[] = [
   {
     id: "2",
     username: "",
-    avatar:
-      "http://googleusercontent.com/image_collection/image_retrieval/1273516072920196088_0",
+    avatar: "https://i.pravatar.cc/150?u=1",
     status: "offline",
     role: "Members",
     tag: "#0023",
@@ -29,7 +28,7 @@ export const mockMembers: Member[] = [
   {
     id: "3",
     username: "",
-    avatar: "/avatars/a3.png",
+    avatar: "https://i.pravatar.cc/150?u=8",
     status: "offline",
     role: "Members",
     tag: "#0099",
@@ -37,7 +36,7 @@ export const mockMembers: Member[] = [
   {
     id: "4",
     username: "",
-    avatar: "/avatars/a4.png",
+    avatar: "https://i.pravatar.cc/150?u=4",
     status: "idle",
     role: "Moderator",
     tag: "#0456",
@@ -45,7 +44,7 @@ export const mockMembers: Member[] = [
   {
     id: "5",
     username: "DevBot",
-    avatar: null,
+    avatar: "https://i.pravatar.cc/150?u=5",
     status: "dnd",
     role: "Bot",
     tag: "",

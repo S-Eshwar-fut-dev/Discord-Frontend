@@ -158,7 +158,7 @@ function TabButton({
     <button
       onClick={onClick}
       className={cn(
-        "px-2 py-0.5 rounded-[4px] text-[15px] font-medium transition-colors",
+        "px-2 py-0.5 rounded-sm text-[15px] font-medium transition-colors",
         active
           ? "bg-[#404249] text-white"
           : "text-[#b5bac1] hover:bg-[#35373c] hover:text-[#dbdee1]"

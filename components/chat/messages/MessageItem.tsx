@@ -228,7 +228,7 @@ export default React.memo(function MessageItem({
             ) : (
               <>
                 <div
-                  className="text-[15px] leading-[1.375rem] text-[#dbdee1] wrap-break-word whitespace-pre-wrap"
+                  className="text-[15px] leading-5.5 text-[#dbdee1] wrap-break-word whitespace-pre-wrap"
                   onDoubleClick={handleDoubleClick}
                 >
                   {message.content}

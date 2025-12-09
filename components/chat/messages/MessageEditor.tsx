@@ -52,7 +52,7 @@ export default function MessageEditor({
   };
 
   return (
-    <div className="w-full bg-[#383a40] rounded-[4px] mt-1 p-2 pr-4">
+    <div className="w-full bg-[#383a40] rounded-sm mt-1 p-2 pr-4">
       <textarea
         ref={textareaRef}
         value={content}
@@ -62,7 +62,7 @@ export default function MessageEditor({
         }}
         onKeyDown={handleKeyDown}
         rows={1}
-        className="w-full bg-transparent text-[#dbdee1] resize-none outline-none font-light text-[15px] leading-[1.375rem] custom-scroll overflow-hidden"
+        className="w-full bg-transparent text-[#dbdee1] resize-none outline-none font-light text-[15px] leading-5.5 custom-scroll overflow-hidden"
       />
       <div className="text-[11px] text-[#b5bac1] mt-2">
         escape to{" "}

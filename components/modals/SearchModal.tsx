@@ -59,7 +59,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4">
+    <div className="fixed inset-0 z-100 flex items-start justify-center pt-24 px-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
@@ -165,7 +165,7 @@ function ResultItem({
       )}
     >
       {/* Icon */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {result.type === "user" ? (
           <Avatar
             src={result.icon}

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Friend } from "../../mocks/mockFriends";
+import { Friend } from "../../mocks/mockFriends.ts";
 import { cn } from "@/lib/utils/cn";
 
 export default function FriendItem({
