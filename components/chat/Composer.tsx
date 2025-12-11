@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Plus, Gift, Sticker, Smile, Paperclip, X } from "lucide-react";
+import {
+  Plus,
+  Gift,
+  Smile,
+  Paperclip,
+  X,
+  Image as ImageIcon,
+} from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import type { ChatMessage, ChatUser } from "@/types/chat";
 import IconButton from "../ui/IconButton";
@@ -9,6 +16,9 @@ import FilePreview from "./fileuploads/FilePreview";
 import { useFileUpload } from "@/hooks/useFileUpload";
 import { cn } from "@/lib/utils/cn";
 import { useTyping } from "@/hooks/useTyping";
+import ReactionPicker from "./reactions/ReactionPicker";
+import GifPicker from "./GifPicker";
+import { AnimatePresence } from "framer-motion";
 
 const DEFAULT_USER: ChatUser = {
   id: "u1",
@@ -30,6 +40,8 @@ export default function Composer({
 }: ComposerProps) {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { startTyping } = useTyping(channelId);
@@ -52,7 +64,6 @@ export default function Composer({
     if (selectedFiles.length > 0) {
       addFiles(selectedFiles);
     }
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -77,7 +88,32 @@ export default function Composer({
       startTyping();
     }
   };
-  // Handle send
+
+  // Handle GIF selection
+  const handleGifSelect = async (gifUrl: string) => {
+    setSending(true);
+
+    try {
+      const tempId = "temp_" + uuidv4().slice(0, 8);
+      const tempMessage: ChatMessage = {
+        id: tempId,
+        channelId,
+        author: me,
+        content: "",
+        attachments: [{ url: gifUrl, filename: "gif" }],
+        createdAt: new Date().toISOString(),
+        temp: true,
+      };
+
+      onSend?.(tempMessage);
+    } catch (error) {
+      console.error("Failed to send GIF:", error);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // Handle send message
   async function handleSend() {
     const trimmed = text.trim();
     if ((!trimmed && files.length === 0) || sending || uploading) return;
@@ -85,10 +121,8 @@ export default function Composer({
     setSending(true);
 
     try {
-      // Upload files first
       const uploadedFiles = await uploadFiles();
 
-      // Create message
       const tempId = "temp_" + uuidv4().slice(0, 8);
       const tempMessage: ChatMessage = {
         id: tempId,
@@ -104,7 +138,7 @@ export default function Composer({
       setText("");
       clearFiles();
     } catch (error) {
-      //console.error("Failed to send message:", error);
+      console.error("Failed to send message:", error);
     } finally {
       setSending(false);
     }
@@ -118,9 +152,37 @@ export default function Composer({
   }
 
   return (
-    <div onDrop={handleDrop} onDragOver={handleDragOver}>
+    <div onDrop={handleDrop} onDragOver={handleDragOver} className="relative">
       {/* File Preview */}
       <FilePreview files={files} onRemove={removeFile} uploading={uploading} />
+
+      {/* Emoji Picker */}
+      <AnimatePresence>
+        {showEmojiPicker && (
+          <div className="absolute bottom-full right-4 mb-2">
+            <ReactionPicker
+              onSelect={(emoji) => {
+                setText((prev) => prev + emoji);
+                setShowEmojiPicker(false);
+                textareaRef.current?.focus();
+              }}
+              onClose={() => setShowEmojiPicker(false)}
+            />
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* GIF Picker */}
+      <AnimatePresence>
+        {showGifPicker && (
+          <div className="absolute bottom-full right-4">
+            <GifPicker
+              onSelect={handleGifSelect}
+              onClose={() => setShowGifPicker(false)}
+            />
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Input Area */}
       <div className="px-4 pb-6">
@@ -138,7 +200,7 @@ export default function Composer({
           <IconButton
             icon={<Plus size={20} />}
             label="Add attachments"
-            className="text-[#b5bac1] hover:text-white"
+            className="text-[#b5bac1] hover:text-white shrink-0"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
           />
@@ -164,21 +226,35 @@ export default function Composer({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <IconButton
               icon={<Gift size={20} />}
-              label="Send gift"
+              label="Send a gift"
               className="text-[#b5bac1] hover:text-white"
             />
             <IconButton
-              icon={<Sticker size={20} />}
-              label="Send sticker"
-              className="text-[#b5bac1] hover:text-white"
+              icon={<ImageIcon size={20} />}
+              label="Send a GIF"
+              className={cn(
+                "text-[#b5bac1] hover:text-white",
+                showGifPicker && "text-white bg-[#4e5058]"
+              )}
+              onClick={() => {
+                setShowGifPicker(!showGifPicker);
+                setShowEmojiPicker(false);
+              }}
             />
             <IconButton
               icon={<Smile size={20} />}
               label="Add emoji"
-              className="text-[#b5bac1] hover:text-white"
+              className={cn(
+                "text-[#b5bac1] hover:text-white",
+                showEmojiPicker && "text-white bg-[#4e5058]"
+              )}
+              onClick={() => {
+                setShowEmojiPicker(!showEmojiPicker);
+                setShowGifPicker(false);
+              }}
             />
           </div>
         </div>
