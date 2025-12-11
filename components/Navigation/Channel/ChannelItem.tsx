@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Hash, Volume2, Lock, Settings } from "lucide-react";
+import { LucideIcon, Hash, Volume2, Lock, Settings } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import IconButton from "@/components/ui/IconButton";
 import Avatar from "@/components/ui/Avatar";
@@ -13,7 +13,7 @@ interface ChannelItemProps {
   locked?: boolean;
   unread?: boolean;
   mentions?: number;
-  icon?: string;
+  icon?: LucideIcon | string;
   connectedUsers?: Array<{
     id: string;
     avatar?: string | null;
@@ -29,7 +29,7 @@ export default function ChannelItem({
   locked = false,
   unread = false,
   mentions = 0,
-  icon,
+  icon: IconProp,
   connectedUsers = [],
   onClick,
 }: ChannelItemProps) {
@@ -47,8 +47,12 @@ export default function ChannelItem({
         )}
       >
         {/* Channel Icon or Default Icon */}
-        {icon ? (
-          <span className="shrink-0 text-base leading-none">{icon}</span>
+        {IconProp ? (
+          typeof IconProp === "string" ? (
+            <span className="shrink-0 text-base leading-none">{IconProp}</span>
+          ) : (
+            <IconProp size={20} className="shrink-0" />
+          )
         ) : (
           <Icon size={20} className="shrink-0" />
         )}
