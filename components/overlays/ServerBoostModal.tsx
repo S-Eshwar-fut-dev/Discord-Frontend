@@ -73,7 +73,7 @@ export default function ServerBoostModal({
         </button>
 
         {/* Header */}
-        <div className="relative bg-gradient-to-br from-[#593695] to-[#5865f2] p-8">
+        <div className="relative bg-linear-to-br from-[#593695] to-[#5865f2] p-8">
           <div className="flex items-center gap-3 mb-2">
             <Sparkles className="w-8 h-8 text-[#faa81a]" />
             <h2 className="text-3xl font-bold text-white">Server Boost</h2>
