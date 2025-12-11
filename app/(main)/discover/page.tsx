@@ -93,7 +93,7 @@ export default function DiscoverPage() {
   return (
     <div className="h-screen w-screen flex bg-[#313338] text-white overflow-hidden">
       {/* Sidebar */}
-      <div className="w-[240px] bg-[#2b2d31] border-r border-[#1e1f22] flex flex-col">
+      <div className="w-60 bg-[#2b2d31] border-r border-[#1e1f22] flex flex-col">
         <div className="p-4 border-b border-[#1e1f22]">
           <h1 className="text-base font-semibold text-white flex items-center gap-2">
             <Search size={20} className="text-[#b5bac1]" />
@@ -198,7 +198,7 @@ function ServerCard({ server }: { server: DiscoverServer }) {
             alt=""
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#2b2d31] to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-t from-[#2b2d31] to-transparent" />
         </div>
       )}
 
